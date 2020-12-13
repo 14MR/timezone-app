@@ -16,8 +16,12 @@ func TimezoneServer(w http.ResponseWriter, r *http.Request) {
 	if timezone == "" {
 		timezone = "UTC"
 	}
-	loc, _ := time.LoadLocation(timezone)
-	now := time.Now().In(loc) // TODO: this produces runtime panic in Docker for some reason but works
+	loc, err := time.LoadLocation(timezone)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	now := time.Now().In(loc)
 
 	fmt.Fprintf(w, "time in %s: %s", timezone, now)
 }
